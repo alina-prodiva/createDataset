@@ -45,8 +45,7 @@ class MainWidget(QWidget):
 
         la_id_spr = QLabel('Справочник вариантов идентификаторов')
         self.id_spr = QComboBox()
-        self.id_spr.addItems(['1 - Идентификатор', '2 - Сущность', '3 - Объект', '4 - Документ',
-                              '5 - Адрес', '6 - Описание объекта', '7 - Информация'])
+        self.id_spr.addItems([f'{i + 1} - {item}' for i, item in enumerate(self.ids)])
         self.settings_layout.addWidget(la_id_spr)
         self.settings_layout.addWidget(self.id_spr)
 
@@ -76,7 +75,7 @@ class MainWidget(QWidget):
             "",  # начальная директория (пустая = домашняя)
             "Табличные данные (*.xlsx *.xls *.csv);;Все файлы (*.*)"
         )
-        if isinstance(self.file_path, str):
+        if self.file_path:
             self.filePath.setText(self.file_path)
             if self.file_path.endswith('.csv'):
                 self.df = pd.read_csv(self.file_path)
@@ -87,7 +86,7 @@ class MainWidget(QWidget):
             else:
                 raise ValueError("Поддерживаются только файлы CSV и Excel (.csv, .xlsx, .xls)")
         else:
-            self.df = self.file_path.copy()
+            return
 
         if self.data:
             # Заполняем таблицу
@@ -99,8 +98,6 @@ class MainWidget(QWidget):
             for i, row in enumerate(self.data):
                 for j, elem in enumerate(row):
                     self.table.setItem(i, j, QTableWidgetItem(str(elem)))
-
-
         self.update()
 
     def on_button_renew(self):
@@ -137,8 +134,11 @@ class MainWidget(QWidget):
                 w1.write(i, j, str(elem))
 
         wb1.close()
-
         self.export_text.setText(f'Результат автоматизированного обезличивания:\nОбезличенная таблица - {file1}')
+        dl = QMessageBox()
+        dl.setWindowTitle('Сообщение')
+        dl.setText(f'Создан файл {file1} с обезличенными данными!')
+        dl.exec()
         self.update()
 
 
